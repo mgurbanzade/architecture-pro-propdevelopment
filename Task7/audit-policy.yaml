@@ -1,0 +1,44 @@
+# Политика аудита для контроля безопасности контейнеров.
+# В журнал попадают все попытки создать или изменить под, включая отклоненные:
+# в событии видны запрошенный securityContext, решение PodSecurity (аннотации pod-security.kubernetes.io/*)
+# и отказ Gatekeeper (responseStatus с сообщением validation.gatekeeper.sh).
+# Отдельно пишутся попытки ослабить защиту: смена меток PodSecurity у namespace,
+# изменение шаблонов и ограничений Gatekeeper, admission-вебхуков.
+apiVersion: audit.k8s.io/v1
+kind: Policy
+omitStages: ["RequestReceived"]
+rules:
+  # значения секретов в журнал не пишем
+  - level: Metadata
+    resources:
+      - group: ""
+        resources: ["secrets"]
+  # создание и изменение подов: тело запроса (securityContext, volumes) и результат admission
+  - level: Request
+    verbs: ["create", "update", "patch"]
+    resources:
+      - group: ""
+        resources: ["pods", "pods/ephemeralcontainers"]
+      - group: "apps"
+        resources: ["deployments", "statefulsets", "daemonsets", "replicasets"]
+  # метки namespace задают уровень PodSecurity: их изменение - попытка ослабить политику
+  - level: RequestResponse
+    verbs: ["create", "update", "patch", "delete"]
+    resources:
+      - group: ""
+        resources: ["namespaces"]
+  # изменение политик Gatekeeper и admission-вебхуков
+  - level: RequestResponse
+    verbs: ["create", "update", "patch", "delete"]
+    resources:
+      - group: "templates.gatekeeper.sh"
+      - group: "constraints.gatekeeper.sh"
+      - group: "admissionregistration.k8s.io"
+        resources: ["validatingwebhookconfigurations", "mutatingwebhookconfigurations"]
+  # RBAC: кто выдает права
+  - level: RequestResponse
+    verbs: ["create", "update", "patch", "delete"]
+    resources:
+      - group: "rbac.authorization.k8s.io"
+  # остальное - только метаданные
+  - level: Metadata

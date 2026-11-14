@@ -1,0 +1,348 @@
+[
+  {
+    "category": "impersonation",
+    "severity": "medium",
+    "reason": "minikube-user выполняет create selfsubjectaccessreviews от имени system:serviceaccount:secure-ops:monitoring (успешно)",
+    "event": {
+      "auditID": "a1df68db-30b6-4245-8107-c4961d63e570",
+      "stageTimestamp": "2026-11-14T09:22:34.090502Z",
+      "verb": "create",
+      "requestURI": "/apis/authorization.k8s.io/v1/selfsubjectaccessreviews",
+      "user": {
+        "username": "minikube-user",
+        "groups": [
+          "system:masters",
+          "system:authenticated"
+        ],
+        "extra": {
+          "authentication.kubernetes.io/credential-id": [
+            "X509SHA256=b016651b6716810110f9d7a3d4dbe396bf1cc75111115b0d1a1a1d69a1088602"
+          ]
+        }
+      },
+      "impersonatedUser": {
+        "username": "system:serviceaccount:secure-ops:monitoring",
+        "groups": [
+          "system:serviceaccounts",
+          "system:serviceaccounts:secure-ops",
+          "system:authenticated"
+        ]
+      },
+      "sourceIPs": [
+        "192.168.49.1"
+      ],
+      "userAgent": "kubectl/v1.36.1 (darwin/arm64) kubernetes/7569396",
+      "objectRef": {
+        "resource": "selfsubjectaccessreviews",
+        "apiGroup": "authorization.k8s.io",
+        "apiVersion": "v1"
+      },
+      "responseStatus": {
+        "code": 201
+      },
+      "annotations": {
+        "authorization.k8s.io/decision": "allow",
+        "authorization.k8s.io/reason": "RBAC: allowed by ClusterRoleBinding \"system:basic-user\" of ClusterRole \"system:basic-user\" to Group \"system:authenticated\""
+      }
+    }
+  },
+  {
+    "category": "secrets-access",
+    "severity": "high",
+    "reason": "minikube-user читает секреты системного namespace kube-system (успешно)",
+    "event": {
+      "auditID": "f621424b-4e8e-4ca1-8a54-deed581bf6f2",
+      "stageTimestamp": "2026-11-14T09:22:34.122237Z",
+      "verb": "list",
+      "requestURI": "/api/v1/namespaces/kube-system/secrets?limit=500",
+      "user": {
+        "username": "minikube-user",
+        "groups": [
+          "system:masters",
+          "system:authenticated"
+        ],
+        "extra": {
+          "authentication.kubernetes.io/credential-id": [
+            "X509SHA256=b016651b6716810110f9d7a3d4dbe396bf1cc75111115b0d1a1a1d69a1088602"
+          ]
+        }
+      },
+      "sourceIPs": [
+        "192.168.49.1"
+      ],
+      "userAgent": "kubectl/v1.36.1 (darwin/arm64) kubernetes/7569396",
+      "objectRef": {
+        "resource": "secrets",
+        "namespace": "kube-system",
+        "apiVersion": "v1"
+      },
+      "responseStatus": {
+        "code": 200
+      },
+      "annotations": {
+        "authorization.k8s.io/decision": "allow",
+        "authorization.k8s.io/reason": ""
+      }
+    }
+  },
+  {
+    "category": "secrets-access",
+    "severity": "high",
+    "reason": "сервисный аккаунт system:serviceaccount:secure-ops:monitoring запрашивает секреты в kube-system (отказ 403)",
+    "event": {
+      "auditID": "74020e57-da09-4a3b-ae2f-0bf33c469a6d",
+      "stageTimestamp": "2026-11-14T09:22:34.153428Z",
+      "verb": "list",
+      "requestURI": "/api/v1/namespaces/kube-system/secrets?limit=500",
+      "user": {
+        "username": "minikube-user",
+        "groups": [
+          "system:masters",
+          "system:authenticated"
+        ],
+        "extra": {
+          "authentication.kubernetes.io/credential-id": [
+            "X509SHA256=b016651b6716810110f9d7a3d4dbe396bf1cc75111115b0d1a1a1d69a1088602"
+          ]
+        }
+      },
+      "impersonatedUser": {
+        "username": "system:serviceaccount:secure-ops:monitoring",
+        "groups": [
+          "system:serviceaccounts",
+          "system:serviceaccounts:secure-ops",
+          "system:authenticated"
+        ]
+      },
+      "sourceIPs": [
+        "192.168.49.1"
+      ],
+      "userAgent": "kubectl/v1.36.1 (darwin/arm64) kubernetes/7569396",
+      "objectRef": {
+        "resource": "secrets",
+        "namespace": "kube-system",
+        "apiVersion": "v1"
+      },
+      "responseStatus": {
+        "code": 403,
+        "reason": "Forbidden",
+        "message": "secrets is forbidden: User \"system:serviceaccount:secure-ops:monitoring\" cannot list resource \"secrets\" in API group \"\" in the namespace \"kube-system\""
+      },
+      "annotations": {
+        "authorization.k8s.io/decision": "forbid",
+        "authorization.k8s.io/reason": ""
+      }
+    }
+  },
+  {
+    "category": "impersonation",
+    "severity": "medium",
+    "reason": "minikube-user выполняет list secrets от имени system:serviceaccount:secure-ops:monitoring (отказ 403)",
+    "event": {
+      "auditID": "74020e57-da09-4a3b-ae2f-0bf33c469a6d",
+      "stageTimestamp": "2026-11-14T09:22:34.153428Z",
+      "verb": "list",
+      "requestURI": "/api/v1/namespaces/kube-system/secrets?limit=500",
+      "user": {
+        "username": "minikube-user",
+        "groups": [
+          "system:masters",
+          "system:authenticated"
+        ],
+        "extra": {
+          "authentication.kubernetes.io/credential-id": [
+            "X509SHA256=b016651b6716810110f9d7a3d4dbe396bf1cc75111115b0d1a1a1d69a1088602"
+          ]
+        }
+      },
+      "impersonatedUser": {
+        "username": "system:serviceaccount:secure-ops:monitoring",
+        "groups": [
+          "system:serviceaccounts",
+          "system:serviceaccounts:secure-ops",
+          "system:authenticated"
+        ]
+      },
+      "sourceIPs": [
+        "192.168.49.1"
+      ],
+      "userAgent": "kubectl/v1.36.1 (darwin/arm64) kubernetes/7569396",
+      "objectRef": {
+        "resource": "secrets",
+        "namespace": "kube-system",
+        "apiVersion": "v1"
+      },
+      "responseStatus": {
+        "code": 403,
+        "reason": "Forbidden",
+        "message": "secrets is forbidden: User \"system:serviceaccount:secure-ops:monitoring\" cannot list resource \"secrets\" in API group \"\" in the namespace \"kube-system\""
+      },
+      "annotations": {
+        "authorization.k8s.io/decision": "forbid",
+        "authorization.k8s.io/reason": ""
+      }
+    }
+  },
+  {
+    "category": "privileged-pod",
+    "severity": "critical",
+    "reason": "minikube-user создает под secure-ops/privileged-pod с опасными настройками: pwn: privileged: true (успешно)",
+    "event": {
+      "auditID": "421f0889-509d-4ae7-9675-0fd20b5f6e4f",
+      "stageTimestamp": "2026-11-14T09:22:34.208712Z",
+      "verb": "create",
+      "requestURI": "/api/v1/namespaces/secure-ops/pods?fieldManager=kubectl-client-side-apply&fieldValidation=Strict",
+      "user": {
+        "username": "minikube-user",
+        "groups": [
+          "system:masters",
+          "system:authenticated"
+        ],
+        "extra": {
+          "authentication.kubernetes.io/credential-id": [
+            "X509SHA256=b016651b6716810110f9d7a3d4dbe396bf1cc75111115b0d1a1a1d69a1088602"
+          ]
+        }
+      },
+      "sourceIPs": [
+        "192.168.49.1"
+      ],
+      "userAgent": "kubectl/v1.36.1 (darwin/arm64) kubernetes/7569396",
+      "objectRef": {
+        "resource": "pods",
+        "namespace": "secure-ops",
+        "name": "privileged-pod",
+        "apiVersion": "v1"
+      },
+      "responseStatus": {
+        "code": 201
+      },
+      "annotations": {
+        "authorization.k8s.io/decision": "allow",
+        "authorization.k8s.io/reason": "",
+        "pod-security.kubernetes.io/enforce-policy": "privileged:latest"
+      },
+      "requestObject": {
+        "metadata": {
+          "name": "privileged-pod",
+          "namespace": "secure-ops"
+        },
+        "spec": {
+          "serviceAccountName": null,
+          "hostPID": null,
+          "hostNetwork": null,
+          "containers": [
+            {
+              "name": "pwn",
+              "image": "alpine",
+              "command": [
+                "sleep",
+                "3600"
+              ],
+              "securityContext": {
+                "privileged": true
+              }
+            }
+          ],
+          "volumes": []
+        }
+      }
+    }
+  },
+  {
+    "category": "pod-exec",
+    "severity": "critical",
+    "reason": "minikube-user: exec в под kube-system/coredns-559f6c778d-2xvfk (успешно)",
+    "event": {
+      "auditID": "982d4760-3fb3-426d-a6fb-05d850499980",
+      "stageTimestamp": "2026-11-14T09:22:34.290550Z",
+      "verb": "get",
+      "requestURI": "/api/v1/namespaces/kube-system/pods/coredns-559f6c778d-2xvfk/exec?command=cat&command=%2Fetc%2Fresolv.conf&container=coredns&stderr=true&stdout=true",
+      "user": {
+        "username": "minikube-user",
+        "groups": [
+          "system:masters",
+          "system:authenticated"
+        ],
+        "extra": {
+          "authentication.kubernetes.io/credential-id": [
+            "X509SHA256=b016651b6716810110f9d7a3d4dbe396bf1cc75111115b0d1a1a1d69a1088602"
+          ]
+        }
+      },
+      "sourceIPs": [
+        "192.168.49.1"
+      ],
+      "userAgent": "kubectl/v1.36.1 (darwin/arm64) kubernetes/7569396",
+      "objectRef": {
+        "resource": "pods",
+        "namespace": "kube-system",
+        "name": "coredns-559f6c778d-2xvfk",
+        "apiVersion": "v1",
+        "subresource": "exec"
+      },
+      "responseStatus": {
+        "code": 101
+      },
+      "annotations": {
+        "authorization.k8s.io/decision": "allow",
+        "authorization.k8s.io/reason": ""
+      }
+    }
+  },
+  {
+    "category": "rbac-binding",
+    "severity": "critical",
+    "reason": "minikube-user привязывает роль cluster-admin через rolebinding secure-ops/escalate-binding (успешно)",
+    "event": {
+      "auditID": "4d44701d-81a9-49dd-bdf8-435f21dc63e4",
+      "stageTimestamp": "2026-11-14T09:22:34.351284Z",
+      "verb": "create",
+      "requestURI": "/apis/rbac.authorization.k8s.io/v1/namespaces/secure-ops/rolebindings?fieldManager=kubectl-client-side-apply&fieldValidation=Strict",
+      "user": {
+        "username": "minikube-user",
+        "groups": [
+          "system:masters",
+          "system:authenticated"
+        ],
+        "extra": {
+          "authentication.kubernetes.io/credential-id": [
+            "X509SHA256=b016651b6716810110f9d7a3d4dbe396bf1cc75111115b0d1a1a1d69a1088602"
+          ]
+        }
+      },
+      "sourceIPs": [
+        "192.168.49.1"
+      ],
+      "userAgent": "kubectl/v1.36.1 (darwin/arm64) kubernetes/7569396",
+      "objectRef": {
+        "resource": "rolebindings",
+        "namespace": "secure-ops",
+        "name": "escalate-binding",
+        "apiGroup": "rbac.authorization.k8s.io",
+        "apiVersion": "v1"
+      },
+      "responseStatus": {
+        "code": 201
+      },
+      "annotations": {
+        "authorization.k8s.io/decision": "allow",
+        "authorization.k8s.io/reason": ""
+      },
+      "requestObject": {
+        "roleRef": {
+          "apiGroup": "rbac.authorization.k8s.io",
+          "kind": "ClusterRole",
+          "name": "cluster-admin"
+        },
+        "subjects": [
+          {
+            "kind": "ServiceAccount",
+            "name": "monitoring",
+            "namespace": "secure-ops"
+          }
+        ]
+      }
+    }
+  }
+]

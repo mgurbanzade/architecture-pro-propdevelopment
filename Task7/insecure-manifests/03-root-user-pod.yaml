@@ -1,0 +1,14 @@
+# Нарушение: контейнер запускается от root (UID 0).
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-root-user
+  namespace: audit-zone
+spec:
+  containers:
+    - name: busybox
+      image: busybox:1.36
+      command: ["sh", "-c", "id && sleep 3600"]
+      securityContext:
+        runAsUser: 0
+        runAsNonRoot: false

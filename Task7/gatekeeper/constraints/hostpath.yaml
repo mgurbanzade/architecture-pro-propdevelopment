@@ -1,0 +1,14 @@
+# Запрет томов hostPath. Действует в namespace с меткой security.pd/gatekeeper=enforce (audit-zone).
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPHostPathVolume
+metadata:
+  name: deny-hostpath-volumes
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaceSelector:
+      matchLabels:
+        security.pd/gatekeeper: enforce

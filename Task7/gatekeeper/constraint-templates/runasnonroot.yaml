@@ -1,0 +1,62 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8spsprunasnonroot
+  annotations:
+    description: >-
+      Требует runAsNonRoot: true (на уровне контейнера или пода), запрещает runAsUser: 0
+      и требует readOnlyRootFilesystem: true у каждого контейнера.
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sPSPRunAsNonRoot
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8spsprunasnonroot
+
+        violation[{"msg": msg}] {
+          c := input_containers[_]
+          run_as_non_root(c) != true
+          msg := sprintf("контейнер %v: требуется runAsNonRoot: true", [c.name])
+        }
+
+        violation[{"msg": msg}] {
+          c := input_containers[_]
+          run_as_user(c) == 0
+          msg := sprintf("контейнер %v: запуск от root (runAsUser: 0) запрещен", [c.name])
+        }
+
+        violation[{"msg": msg}] {
+          c := input_containers[_]
+          object.get(container_sc(c), "readOnlyRootFilesystem", false) != true
+          msg := sprintf("контейнер %v: требуется readOnlyRootFilesystem: true", [c.name])
+        }
+
+        # Настройка контейнера важнее настройки пода.
+        run_as_non_root(c) = v {
+          v := object.get(container_sc(c), "runAsNonRoot", object.get(pod_sc, "runAsNonRoot", false))
+        }
+
+        run_as_user(c) = u {
+          u := object.get(container_sc(c), "runAsUser", object.get(pod_sc, "runAsUser", -1))
+        }
+
+        container_sc(c) = sc {
+          sc := object.get(c, "securityContext", {})
+        }
+
+        pod_sc = sc {
+          sc := object.get(input.review.object.spec, "securityContext", {})
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.containers[_]
+        }
+        input_containers[c] {
+          c := input.review.object.spec.initContainers[_]
+        }
+        input_containers[c] {
+          c := input.review.object.spec.ephemeralContainers[_]
+        }
