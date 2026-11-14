@@ -1,0 +1,33 @@
+# Исправление 02: вместо hostPath - emptyDir. Данные живут вместе с подом и не дают доступа к узлу.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-secure-storage
+  namespace: audit-zone
+  labels:
+    app: secure-demo
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: busybox
+      image: busybox:1.36
+      command: ["sh", "-c", "echo ok > /data/check && sleep 3600"]
+      securityContext:
+        privileged: false
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        capabilities:
+          drop: ["ALL"]
+      volumeMounts:
+        - name: data
+          mountPath: /data
+  volumes:
+    - name: data
+      emptyDir: {}

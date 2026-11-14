@@ -1,0 +1,15 @@
+# Namespace с уровнем PodSecurity restricted: поды, нарушающие профиль, отклоняются (enforce),
+# попадают в аудит (audit) и показывают предупреждение в kubectl (warn).
+# Метка security.pd/gatekeeper включает для namespace ограничения OPA Gatekeeper.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: audit-zone
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/audit-version: latest
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: latest
+    security.pd/gatekeeper: enforce

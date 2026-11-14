@@ -1,0 +1,26 @@
+# Исправление 03: контейнер работает от непривилегированного пользователя UID 1000.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-secure-user
+  namespace: audit-zone
+  labels:
+    app: secure-demo
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: busybox
+      image: busybox:1.36
+      command: ["sh", "-c", "id && sleep 3600"]
+      securityContext:
+        privileged: false
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        capabilities:
+          drop: ["ALL"]

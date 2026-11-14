@@ -1,0 +1,35 @@
+# Исправление 01: вместо привилегированного nginx - nginx-unprivileged (UID 101, порт 8080).
+# Профиль restricted: не root, без повышения привилегий, все capabilities сброшены, seccomp RuntimeDefault.
+# Корневая ФС только для чтения, nginx пишет временные файлы в emptyDir /tmp.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-secure-nginx
+  namespace: audit-zone
+  labels:
+    app: secure-demo
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 101
+    runAsGroup: 101
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: nginx
+      image: nginxinc/nginx-unprivileged:1.27-alpine
+      ports:
+        - containerPort: 8080
+      securityContext:
+        privileged: false
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        capabilities:
+          drop: ["ALL"]
+      volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+  volumes:
+    - name: tmp
+      emptyDir: {}

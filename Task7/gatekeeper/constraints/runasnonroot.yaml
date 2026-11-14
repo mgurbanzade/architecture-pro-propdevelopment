@@ -1,0 +1,14 @@
+# Только runAsNonRoot и readOnlyRootFilesystem. Действует в namespace с меткой security.pd/gatekeeper=enforce (audit-zone).
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPRunAsNonRoot
+metadata:
+  name: require-nonroot-readonly-rootfs
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaceSelector:
+      matchLabels:
+        security.pd/gatekeeper: enforce

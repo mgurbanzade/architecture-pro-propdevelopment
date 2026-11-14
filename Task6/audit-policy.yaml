@@ -1,0 +1,25 @@
+# Политика аудита для задания 6 (исправленная версия политики из задания).
+# Исправлено:
+#  1. group: "*" недопустим, kube-apiserver с ним не стартует. Правило для всех ресурсов
+#     пишется без поля resources.
+#  2. roles и rolebindings относятся к группе rbac.authorization.k8s.io, а не к "".
+#     Без этого RoleBinding пишется только на уровне Metadata и roleRef не виден.
+#  3. Секреты пишутся на уровне Metadata: на уровне RequestResponse значения всех
+#     прочитанных секретов попадают в сам журнал, и журнал становится источником утечки.
+#  4. Стадия RequestReceived не пишется: она дублирует ResponseComplete.
+apiVersion: audit.k8s.io/v1
+kind: Policy
+omitStages: ["RequestReceived"]
+rules:
+  - level: Metadata
+    resources:
+      - group: ""
+        resources: ["secrets"]
+  - level: RequestResponse
+    verbs: ["create", "delete", "update", "patch", "get", "list"]
+    resources:
+      - group: ""
+        resources: ["pods", "configmaps", "serviceaccounts"]
+      - group: "rbac.authorization.k8s.io"
+        resources: ["roles", "rolebindings", "clusterroles", "clusterrolebindings"]
+  - level: Metadata
